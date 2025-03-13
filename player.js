@@ -109,7 +109,7 @@ function initializePlayer(client) {
                 `- **Author:** ${track.info.author || 'Unknown Artist'}\n` +
                 `- **Length:** ${formatDuration(track.info.length)}\n` +
                 `- **Requester:** ${requester}\n` +
-                `- **Source:** ${track.info.sourceName}\n`')
+                `- **Source:** ${track.info.sourceName}`')
             .setImage('attachment://musicard.png')
             .setColor('#FF7A00');
 
