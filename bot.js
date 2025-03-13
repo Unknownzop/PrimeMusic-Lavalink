@@ -2,26 +2,28 @@ const { Client, GatewayIntentBits } = require("discord.js");
 const config = require("./config.js");
 const fs = require("fs");
 const path = require('path');
-const { printWatermark } = require('./util/pw');
 const { initializePlayer } = require('./player');
+const { connectToDatabase } = require('./mongodb');
+const colors = require('./UI/colors/colors');
+require('dotenv').config();
 
-// Define intents
 const intents = [
   GatewayIntentBits.Guilds,
   GatewayIntentBits.GuildMembers,
   GatewayIntentBits.GuildVoiceStates,
   GatewayIntentBits.GuildMessages
 ];
-
 const client = new Client({ intents });
+
 client.config = config;
 initializePlayer(client);
 
 client.on("ready", () => {
-  console.log(`Logged in as ${client.user.tag}`);
-  client.riffy.init(client.user.id);
+    console.log(`${colors.cyan}[ SYSTEM ]${colors.reset} ${colors.green}Client logged as ${colors.yellow}${client.user.tag}${colors.reset}`);
+    console.log(`${colors.cyan}[ MUSIC ]${colors.reset} ${colors.green}Riffy Music System Ready 🎵${colors.reset}`);
+    console.log(`${colors.cyan}[ TIME ]${colors.reset} ${colors.gray}${new Date().toISOString().replace('T', ' ').split('.')[0]}${colors.reset}`);
+    client.riffy.init(client.user.id);
 });
-
 client.config = config;
 
 fs.readdir("./events", (_err, files) => {
@@ -62,9 +64,39 @@ client.on("raw", (d) => {
 });
 
 client.login(config.TOKEN || process.env.TOKEN).catch((e) => {
-    console.log('TOKEN ERROR❌  - Turn On Intents or Reset New Token');
+  console.log('\n' + '─'.repeat(40));
+  console.log(`${colors.magenta}${colors.bright}🔐 TOKEN VERIFICATION${colors.reset}`);
+  console.log('─'.repeat(40));
+  console.log(`${colors.cyan}[ TOKEN ]${colors.reset} ${colors.red}Authentication Failed ❌${colors.reset}`);
+  console.log(`${colors.gray}Error: Turn On Intents or Reset New Token${colors.reset}`);
+});
+connectToDatabase().then(() => {
+  console.log('\n' + '─'.repeat(40));
+  console.log(`${colors.magenta}${colors.bright}🕸️  DATABASE STATUS${colors.reset}`);
+  console.log('─'.repeat(40));
+  console.log(`${colors.cyan}[ DATABASE ]${colors.reset} ${colors.green}MongoDB Online ✅${colors.reset}`);
+}).catch((err) => {
+  console.log('\n' + '─'.repeat(40));
+  console.log(`${colors.magenta}${colors.bright}🕸️  DATABASE STATUS${colors.reset}`);
+  console.log('─'.repeat(40));
+  console.log(`${colors.cyan}[ DATABASE ]${colors.reset} ${colors.red}Connection Failed ❌${colors.reset}`);
+  console.log(`${colors.gray}Error: ${err.message}${colors.reset}`);
 });
 
+const express = require("express");
+const app = express();
+const port = 3000;
+app.get('/', (req, res) => {
+    const imagePath = path.join(__dirname, 'index.html');
+    res.sendFile(imagePath);
+});
 
-printWatermark();
-
+app.listen(port, () => {
+    console.log('\n' + '─'.repeat(40));
+    console.log(`${colors.magenta}${colors.bright}🌐 SERVER STATUS${colors.reset}`);
+    console.log('─'.repeat(40));
+    console.log(`${colors.cyan}[ SERVER ]${colors.reset} ${colors.green}Online ✅${colors.reset}`);
+    console.log(`${colors.cyan}[ PORT ]${colors.reset} ${colors.yellow}http://localhost:${port}${colors.reset}`);
+    console.log(`${colors.cyan}[ TIME ]${colors.reset} ${colors.gray}${new Date().toISOString().replace('T', ' ').split('.')[0]}${colors.reset}`);
+    console.log(`${colors.cyan}[ USER ]${colors.reset} ${colors.yellow}GlaceYT${colors.reset}`);
+});
